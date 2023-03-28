@@ -29,7 +29,7 @@ func (n *node) matchChildren(part string) []*node {
 	return nodes
 }
 
-func (n *node) inset(pattern string, parts []string, height int) {
+func (n *node) insert(pattern string, parts []string, height int) {
 	if len(parts) == height {
 		n.pattern = pattern
 		return
@@ -41,7 +41,7 @@ func (n *node) inset(pattern string, parts []string, height int) {
 		child = &node{part: part, isWild: parts[0] == ":" || parts[0] == "*"}
 		n.children = append(n.children, child)
 	}
-	child.inset(pattern, parts, height+1)
+	child.insert(pattern, parts, height+1)
 }
 
 func (n *node) search(parts []string, height int) *node {

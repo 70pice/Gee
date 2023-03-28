@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-func main() {
+func demo5() {
 	testOne := make(map[string]interface{})
 
 	testOne["one"] = "qwe"
