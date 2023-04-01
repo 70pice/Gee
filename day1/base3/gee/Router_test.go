@@ -2,49 +2,44 @@ package gee
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 )
 
-func helpFunction() *router {
-	testRouter := &router{}
-	//testRouter.roots =
-	testRouter.roots = make(map[string]*node)
-	testRouter.handlers = make(map[string]HandlerFunc)
-	return testRouter
+func newTestRouter() *router {
+	r := newRouter()
+	r.addRoute("GET", "/", nil)
+	r.addRoute("GET", "/hello/:name", nil)
+	r.addRoute("GET", "/hello/b/c", nil)
+	r.addRoute("GET", "/hi/:name", nil)
+	r.addRoute("GET", "/assets/*filepath", nil)
+	return r
 }
-func Test_paresePattern(t *testing.T) {
-	var pathOne string = "/one/two/three"
-	patternOne := parsePattern(pathOne)
-
-	var pathTwo string = "/one/*/three"
-	patternTwo := parsePattern(pathTwo)
-
-	fmt.Println(patternOne)
-	fmt.Println(patternTwo)
-}
-
-func Test_addRouter(t *testing.T) {
-	testRouter := helpFunction()
-	//testRouter.roots["GET"] = &node{}
-	testRouter.addRoute("GET", "/one/two/three", func(context *Context) {
-		fmt.Println("testing")
-	})
-
-	testRouter.addRoute("GET", "/one/two/four", func(context *Context) {
-		fmt.Println("testing")
-	})
+func TestParsePattern(t *testing.T) {
+	ok := reflect.DeepEqual(parsePattern("/p/:name"), []string{"p", ":name"})
+	ok = ok && reflect.DeepEqual(parsePattern("/p/*"), []string{"p", "*"})
+	ok = ok && reflect.DeepEqual(parsePattern("/p/*name/*"), []string{"p", "*name"})
+	if !ok {
+		t.Fatal("test parsePattern failed")
+	}
 }
 
-func Test_getRouter(t *testing.T) {
-	testRouter := helpFunction()
-	//testRouter.roots["GET"] = &node{}
-	testRouter.addRoute("GET", "/one/two/three", func(context *Context) {
-		fmt.Println("testing")
-	})
+func TestGetRoute(t *testing.T) {
+	r := newTestRouter()
+	n, ps := r.getRoute("GET", "/hello/geektutu")
 
-	testRouter.addRoute("GET", "/one/two/four", func(context *Context) {
-		fmt.Println("testing")
-	})
+	if n == nil {
+		t.Fatal("nil shouldn't be returned")
+	}
 
-	testRouter.getRoute("GET", "/one/two/three")
+	if n.pattern != "/hello/:name" {
+		t.Fatal("should match /hello/:name")
+	}
+
+	if ps["name"] != "geektutu" {
+		t.Fatal("name should be equal to 'geektutu'")
+	}
+
+	fmt.Printf("matched path: %s, params['name']: %s\n", n.pattern, ps["name"])
+
 }

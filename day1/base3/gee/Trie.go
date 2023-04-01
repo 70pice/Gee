@@ -1,12 +1,19 @@
 package gee
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type node struct {
 	pattern  string // 待匹配路由，例如/p/:lang
 	part     string // 路由的一部分
 	children []*node
 	isWild   bool // 是否精确匹配 part中含有 : 或者 *时为true
+}
+
+func (n *node) String() string {
+	return fmt.Sprintf("node{pattern=%s, part=%s, isWild=%t}", n.pattern, n.part, n.isWild)
 }
 
 // 第一个匹配成功的节点，用于插入
@@ -38,7 +45,7 @@ func (n *node) insert(pattern string, parts []string, height int) {
 	part := parts[height]
 	child := n.matchChild(part)
 	if child == nil {
-		child = &node{part: part, isWild: parts[0] == ":" || parts[0] == "*"}
+		child = &node{part: part, isWild: part[0] == ':' || part[0] == '*'}
 		n.children = append(n.children, child)
 	}
 	child.insert(pattern, parts, height+1)
